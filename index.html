@@ -109,13 +109,17 @@ footer { border-top: 3px double var(--ink); padding: 14px 24px; text-align: cent
   <span class="api-status" id="kstat"></span>
   <label style="margin-left:8px">MODEL</label>
   <select id="model-select" onchange="updateModelBadge()">
-    <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Gratis)</option>
-    <option value="mistralai/mistral-7b-instruct:free">Mistral 7B (Gratis)</option>
-    <option value="google/gemma-3-27b-it:free">Gemma 3 27B (Gratis)</option>
-    <option value="deepseek/deepseek-r1-0528:free">DeepSeek R1 (Gratis)</option>
-    <option value="microsoft/phi-4-reasoning:free">Phi-4 Reasoning (Gratis)</option>
+    <option value="nvidia/llama-3.1-nemotron-ultra-253b-v1:free">NVIDIA Nemotron 3 Super (Gratis)</option>
+    <option value="stepfun-ai/step-3-5-flash:free">StepFun Step 3.5 Flash (Gratis)</option>
+    <option value="arcee-ai/arcee-trinity:free">Arcee Trinity Large (Gratis)</option>
+    <option value="meta-llama/llama-3.3-70b-instruct:free">Meta Llama 3.3 70B (Gratis)</option>
+    <option value="qwen/qwen3-235b-a22b:free">Qwen3 235B (Gratis)</option>
+    <option value="qwen/qwen3-30b-a3b:free">Qwen3 30B (Gratis)</option>
+    <option value="google/gemma-3-27b-it:free">Google Gemma 3 27B (Gratis)</option>
+    <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral Small 3.1 24B (Gratis)</option>
+    <option value="meta-llama/llama-3.2-3b-instruct:free">Meta Llama 3.2 3B (Gratis)</option>
   </select>
-  <span class="model-badge" id="model-badge">Llama 3.3 70B</span>
+  <span class="model-badge" id="model-badge">NVIDIA Nemotron 3 Super</span>
   <span class="api-note">Gratis di <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></span>
 </div>
 
@@ -266,11 +270,15 @@ document.getElementById('tgl').textContent =
   new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
 
 const MODEL_NAMES = {
-  'meta-llama/llama-3.3-70b-instruct:free': 'Llama 3.3 70B',
-  'mistralai/mistral-7b-instruct:free': 'Mistral 7B',
-  'google/gemma-3-27b-it:free': 'Gemma 3 27B',
-  'deepseek/deepseek-r1-0528:free': 'DeepSeek R1',
-  'microsoft/phi-4-reasoning:free': 'Phi-4 Reasoning'
+  'nvidia/llama-3.1-nemotron-ultra-253b-v1:free': 'NVIDIA Nemotron 3 Super',
+  'stepfun-ai/step-3-5-flash:free': 'StepFun Step 3.5 Flash',
+  'arcee-ai/arcee-trinity:free': 'Arcee Trinity Large',
+  'meta-llama/llama-3.3-70b-instruct:free': 'Meta Llama 3.3 70B',
+  'qwen/qwen3-235b-a22b:free': 'Qwen3 235B',
+  'qwen/qwen3-30b-a3b:free': 'Qwen3 30B',
+  'google/gemma-3-27b-it:free': 'Google Gemma 3 27B',
+  'mistralai/mistral-small-3.1-24b-instruct:free': 'Mistral Small 3.1 24B',
+  'meta-llama/llama-3.2-3b-instruct:free': 'Meta Llama 3.2 3B'
 };
 
 function updateModelBadge(){
