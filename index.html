@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SohibSoccer — AI Content Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1a1a18;
+  --ink2: #4a4a46;
+  --ink3: #8a8a84;
+  --paper: #f5f0e6;
+  --paper2: #ede8dc;
+  --paper3: #d8d2c4;
+  --accent: #c8392b;
+  --card-bg: #faf6ee;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: 'Source Serif 4', Georgia, serif; min-height: 100vh; }
+
+.masthead { border-bottom: 3px double var(--ink); padding: 18px 24px 14px; text-align: center; }
+.masthead-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink3); letter-spacing: 0.08em; }
+.masthead h1 { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(32px, 6vw, 54px); font-weight: 900; letter-spacing: -0.01em; line-height: 1; }
+.masthead-sub { font-size: 11px; color: var(--ink3); letter-spacing: 0.15em; text-transform: uppercase; margin-top: 5px; font-family: 'DM Mono', monospace; }
+.masthead-rule { height: 1px; background: var(--ink); margin: 10px 0 0; }
+
+.apibar { background: var(--ink); padding: 10px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.apibar label { font-family: 'DM Mono', monospace; font-size: 11px; color: #aaa; letter-spacing: 0.08em; white-space: nowrap; }
+.apibar input, .apibar select { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 3px; padding: 6px 10px; color: #eee; font-family: 'DM Mono', monospace; font-size: 12px; outline: none; }
+.apibar input { flex: 1; min-width: 200px; }
+.apibar input:focus, .apibar select:focus { border-color: rgba(255,255,255,0.4); }
+.apibar select option { background: #1a1a18; color: #eee; }
+.api-status { font-family: 'DM Mono', monospace; font-size: 11px; white-space: nowrap; }
+.api-status.ok { color: #6fcf97; }
+.api-status.err { color: #eb5757; }
+.api-note { font-family: 'DM Mono', monospace; font-size: 10px; color: #555; margin-left: auto; }
+.api-note a { color: #6fcf97; }
+
+.tabs-bar { border-bottom: 1px solid var(--paper3); padding: 0 24px; display: flex; background: var(--paper); }
+.tab-btn { background: transparent; border: none; border-bottom: 3px solid transparent; padding: 12px 18px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink3); cursor: pointer; transition: all 0.15s; margin-bottom: -1px; }
+.tab-btn:hover { color: var(--ink); }
+.tab-btn.active { color: var(--ink); border-bottom-color: var(--accent); font-weight: 500; }
+
+.main { max-width: 1100px; margin: 0 auto; padding: 24px 24px 60px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+@media(max-width:720px){ .main { grid-template-columns: 1fr; } }
+.panel { display: none; }
+.panel.active { display: contents; }
+
+.section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); margin-bottom: 14px; padding-bottom: 6px; border-bottom: 1px solid var(--paper3); }
+.frow { margin-bottom: 14px; }
+.frow label { display: block; font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink2); margin-bottom: 5px; letter-spacing: 0.05em; }
+.frow input[type=text], .frow select, .frow textarea { width: 100%; background: var(--card-bg); border: 1px solid var(--paper3); border-radius: 2px; padding: 8px 10px; font-family: 'Source Serif 4', Georgia, serif; font-size: 14px; color: var(--ink); outline: none; transition: border-color 0.15s; }
+.frow input:focus, .frow select:focus, .frow textarea:focus { border-color: var(--ink2); }
+.frow textarea { min-height: 72px; resize: vertical; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+.gen-btn { width: 100%; padding: 12px 20px; background: var(--ink); color: var(--paper); border: none; border-radius: 2px; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; margin-top: 6px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.gen-btn:hover { background: var(--accent); }
+.gen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.gen-btn:disabled:hover { background: var(--ink); }
+
+.output-card { background: var(--card-bg); border: 1px solid var(--paper3); border-radius: 2px; padding: 16px; margin-bottom: 14px; }
+.output-card-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink3); margin-bottom: 12px; }
+.poster-container { width: 100%; aspect-ratio: 1; overflow: hidden; border: 1px solid var(--paper3); }
+.poster-container svg { display: block; width: 100%; height: 100%; }
+.poster-placeholder { width: 100%; aspect-ratio: 1; background: var(--paper2); border: 1px dashed var(--paper3); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 8px; }
+.poster-placeholder span { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink3); letter-spacing: 0.08em; }
+
+.tweet-box { background: var(--paper); border: 1px solid var(--paper3); border-radius: 2px; padding: 14px; font-size: 14px; line-height: 1.65; color: var(--ink); min-height: 80px; white-space: pre-wrap; word-break: break-word; }
+.tweet-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+.char-count { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink3); }
+.char-count.warn { color: #e67e22; }
+.char-count.over { color: var(--accent); }
+.action-row { display: flex; gap: 8px; margin-top: 10px; }
+.action-btn { flex: 1; padding: 7px 12px; background: transparent; border: 1px solid var(--paper3); border-radius: 2px; font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.06em; color: var(--ink2); cursor: pointer; text-transform: uppercase; transition: all 0.15s; }
+.action-btn:hover { background: var(--paper2); border-color: var(--ink2); }
+.action-btn.ok { color: #27ae60; border-color: #27ae60; }
+
+.loading-bar { display: none; padding: 24px; text-align: center; }
+.loading-bar.show { display: block; }
+.loading-bar span { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--ink3); letter-spacing: 0.1em; animation: pulse 1.5s ease-in-out infinite; }
+@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+.errmsg { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent); padding: 10px 14px; border: 1px solid var(--accent); border-radius: 2px; background: rgba(200,57,43,0.05); margin-top: 12px; }
+
+.model-badge { font-family: 'DM Mono', monospace; font-size: 10px; color: #6fcf97; background: rgba(111,207,151,0.1); border: 1px solid rgba(111,207,151,0.2); border-radius: 3px; padding: 2px 8px; white-space: nowrap; }
+
+footer { border-top: 3px double var(--ink); padding: 14px 24px; text-align: center; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--ink3); letter-spacing: 0.1em; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-top">
+    <span id="tgl">—</span>
+    <span>AI CONTENT TOOLKIT</span>
+    <span>POWERED BY OPENROUTER</span>
+  </div>
+  <h1>SohibSoccer</h1>
+  <div class="masthead-sub">caption &bull; poster &bull; transfer news &bull; reaksi pertandingan</div>
+  <div class="masthead-rule"></div>
+</header>
+
+<div class="apibar">
+  <label>OPENROUTER API KEY</label>
+  <input type="password" id="apikey" placeholder="sk-or-v1-..." oninput="checkKey()">
+  <span class="api-status" id="kstat"></span>
+  <label style="margin-left:8px">MODEL</label>
+  <select id="model-select" onchange="updateModelBadge()">
+    <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B (Gratis)</option>
+    <option value="mistralai/mistral-7b-instruct:free">Mistral 7B (Gratis)</option>
+    <option value="google/gemma-3-27b-it:free">Gemma 3 27B (Gratis)</option>
+    <option value="deepseek/deepseek-r1-0528:free">DeepSeek R1 (Gratis)</option>
+    <option value="microsoft/phi-4-reasoning:free">Phi-4 Reasoning (Gratis)</option>
+  </select>
+  <span class="model-badge" id="model-badge">Llama 3.3 70B</span>
+  <span class="api-note">Gratis di <a href="https://openrouter.ai/keys" target="_blank">openrouter.ai/keys</a></span>
+</div>
+
+<nav class="tabs-bar">
+  <button class="tab-btn active" onclick="sw('caption',this)">Caption Match</button>
+  <button class="tab-btn" onclick="sw('reaksi',this)">Reaksi Cepat</button>
+  <button class="tab-btn" onclick="sw('transfer',this)">Transfer News</button>
+</nav>
+
+<div class="main">
+
+  <!-- CAPTION -->
+  <div id="p-caption" class="panel active">
+    <div>
+      <div class="section-label">Input Data Match</div>
+      <div class="row2">
+        <div class="frow"><label>Tim 1</label><input type="text" id="c-t1" placeholder="Arsenal"></div>
+        <div class="frow"><label>Tim 2</label><input type="text" id="c-t2" placeholder="Man City"></div>
+      </div>
+      <div class="row3">
+        <div class="frow"><label>Liga</label>
+          <select id="c-lg"><option>Premier League</option><option>La Liga</option><option>Serie A</option><option>Bundesliga</option><option>Ligue 1</option><option>Liga 1</option><option>Champions League</option><option>Timnas Indonesia</option></select>
+        </div>
+        <div class="frow"><label>Momen</label>
+          <select id="c-mm"><option>Match preview</option><option>Post-match</option><option>Gol penting</option><option>Kartu merah</option><option>Comeback</option><option>Injury time goal</option></select>
+        </div>
+        <div class="frow"><label>Tone</label>
+          <select id="c-tn"><option>Dramatis</option><option>Santai</option><option>Analitis</option><option>Roasting</option></select>
+        </div>
+      </div>
+      <div class="frow"><label>Detail tambahan (opsional)</label>
+        <textarea id="c-dt" placeholder="Misal: Saka cetak gol menit 90+3, City main 10 orang sejak menit 60..."></textarea>
+      </div>
+      <button class="gen-btn" id="btn-c" onclick="gen('caption')"><span>Generate caption + poster</span><span>&#x2192;</span></button>
+      <div class="loading-bar" id="ld-c"><span>SEDANG GENERATE...</span></div>
+      <div id="err-c"></div>
+    </div>
+    <div>
+      <div class="output-card">
+        <div class="output-card-label">Poster (1:1)</div>
+        <div class="poster-placeholder" id="poster-c"><span>&#x25A1;</span><span>POSTER MUNCUL DI SINI</span></div>
+        <div class="action-row" id="dl-c" style="display:none">
+          <button class="action-btn" onclick="dlSVG('caption')">Unduh SVG</button>
+          <button class="action-btn" onclick="dlPNG('caption')">Unduh PNG 1080px</button>
+        </div>
+      </div>
+      <div class="output-card">
+        <div class="output-card-label">Caption Twitter</div>
+        <div class="tweet-box" id="tw-c">Caption akan muncul setelah generate...</div>
+        <div class="tweet-foot">
+          <span class="char-count" id="cc-c">0/280</span>
+          <button class="action-btn" style="flex:0;padding:5px 14px" onclick="cp('c',this)">Salin</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REAKSI -->
+  <div id="p-reaksi" class="panel">
+    <div>
+      <div class="section-label">Input Data Pertandingan</div>
+      <div class="row2">
+        <div class="frow"><label>Tim (yang dibahas)</label><input type="text" id="r-tm" placeholder="Manchester United"></div>
+        <div class="frow"><label>Skor akhir</label><input type="text" id="r-sk" placeholder="0-3"></div>
+      </div>
+      <div class="frow"><label>Lawan</label><input type="text" id="r-lw" placeholder="Brighton"></div>
+      <div class="frow"><label>Kejadian penting</label>
+        <textarea id="r-kj" placeholder="Rashford missed 2 chances, Onana blunder menit 34..."></textarea>
+      </div>
+      <div class="frow"><label>Tone reaksi</label>
+        <select id="r-tn"><option>Roasting</option><option>Analitis</option><option>Netral</option><option>Campuran</option></select>
+      </div>
+      <button class="gen-btn" id="btn-r" onclick="gen('reaksi')"><span>Generate reaksi + poster</span><span>&#x2192;</span></button>
+      <div class="loading-bar" id="ld-r"><span>SEDANG GENERATE...</span></div>
+      <div id="err-r"></div>
+    </div>
+    <div>
+      <div class="output-card">
+        <div class="output-card-label">Poster (1:1)</div>
+        <div class="poster-placeholder" id="poster-r"><span>&#x25A1;</span><span>POSTER MUNCUL DI SINI</span></div>
+        <div class="action-row" id="dl-r" style="display:none">
+          <button class="action-btn" onclick="dlSVG('reaksi')">Unduh SVG</button>
+          <button class="action-btn" onclick="dlPNG('reaksi')">Unduh PNG 1080px</button>
+        </div>
+      </div>
+      <div class="output-card">
+        <div class="output-card-label">Caption Twitter</div>
+        <div class="tweet-box" id="tw-r">Caption akan muncul setelah generate...</div>
+        <div class="tweet-foot">
+          <span class="char-count" id="cc-r">0/280</span>
+          <button class="action-btn" style="flex:0;padding:5px 14px" onclick="cp('r',this)">Salin</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSFER -->
+  <div id="p-transfer" class="panel">
+    <div>
+      <div class="section-label">Input Data Transfer</div>
+      <div class="row2">
+        <div class="frow"><label>Nama pemain</label><input type="text" id="t-pm" placeholder="Kylian Mbappe"></div>
+        <div class="frow"><label>Posisi</label><input type="text" id="t-ps" placeholder="Striker"></div>
+      </div>
+      <div class="row2">
+        <div class="frow"><label>Klub asal</label><input type="text" id="t-dr" placeholder="PSG"></div>
+        <div class="frow"><label>Klub tujuan</label><input type="text" id="t-ke" placeholder="Real Madrid"></div>
+      </div>
+      <div class="row2">
+        <div class="frow"><label>Status</label>
+          <select id="t-st"><option>Rumor</option><option>Negosiasi aktif</option><option>Deal confirmed</option><option>Dibantah / denied</option><option>Gagal deal</option></select>
+        </div>
+        <div class="frow"><label>Sumber berita</label><input type="text" id="t-src" placeholder="Fabrizio Romano..."></div>
+      </div>
+      <div class="frow"><label>Info tambahan</label>
+        <textarea id="t-in" placeholder="Nilai transfer, durasi kontrak, dll..."></textarea>
+      </div>
+      <button class="gen-btn" id="btn-t" onclick="gen('transfer')"><span>Generate tweet + poster</span><span>&#x2192;</span></button>
+      <div class="loading-bar" id="ld-t"><span>SEDANG GENERATE...</span></div>
+      <div id="err-t"></div>
+    </div>
+    <div>
+      <div class="output-card">
+        <div class="output-card-label">Poster (1:1)</div>
+        <div class="poster-placeholder" id="poster-t"><span>&#x25A1;</span><span>POSTER MUNCUL DI SINI</span></div>
+        <div class="action-row" id="dl-t" style="display:none">
+          <button class="action-btn" onclick="dlSVG('transfer')">Unduh SVG</button>
+          <button class="action-btn" onclick="dlPNG('transfer')">Unduh PNG 1080px</button>
+        </div>
+      </div>
+      <div class="output-card">
+        <div class="output-card-label">Caption Twitter</div>
+        <div class="tweet-box" id="tw-t">Caption akan muncul setelah generate...</div>
+        <div class="tweet-foot">
+          <span class="char-count" id="cc-t">0/280</span>
+          <button class="action-btn" style="flex:0;padding:5px 14px" onclick="cp('t',this)">Salin</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>&copy; SOHIBSOCCER &mdash; AI CONTENT TOOLKIT &mdash; POWERED BY OPENROUTER</footer>
+
+<script>
+document.getElementById('tgl').textContent =
+  new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).toUpperCase();
+
+const MODEL_NAMES = {
+  'meta-llama/llama-3.3-70b-instruct:free': 'Llama 3.3 70B',
+  'mistralai/mistral-7b-instruct:free': 'Mistral 7B',
+  'google/gemma-3-27b-it:free': 'Gemma 3 27B',
+  'deepseek/deepseek-r1-0528:free': 'DeepSeek R1',
+  'microsoft/phi-4-reasoning:free': 'Phi-4 Reasoning'
+};
+
+function updateModelBadge(){
+  const val = document.getElementById('model-select').value;
+  document.getElementById('model-badge').textContent = MODEL_NAMES[val] || val;
+}
+
+function checkKey(){
+  const k = document.getElementById('apikey').value.trim();
+  const s = document.getElementById('kstat');
+  if(k.startsWith('sk-or-')){ s.textContent='SIAP'; s.className='api-status ok'; }
+  else if(k.length>0){ s.textContent='FORMAT SALAH'; s.className='api-status err'; }
+  else { s.textContent=''; s.className='api-status'; }
+}
+
+function sw(t,el){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('p-'+t).classList.add('active');
+}
+
+function updChar(id,txt){
+  const el=document.getElementById('cc-'+id); const n=txt.length;
+  el.textContent=n+'/280';
+  el.className='char-count'+(n>280?' over':n>240?' warn':'');
+}
+
+function cp(id,btn){
+  navigator.clipboard.writeText(document.getElementById('tw-'+id).textContent).then(()=>{
+    btn.textContent='Tersalin!'; btn.classList.add('ok');
+    setTimeout(()=>{ btn.textContent='Salin'; btn.classList.remove('ok'); },1500);
+  });
+}
+
+function wrap(text,cpl){
+  if(!text)return[''];
+  const words=text.split(' '); const lines=[]; let cur='';
+  words.forEach(w=>{
+    if((cur+' '+w).trim().length<=cpl) cur=(cur+' '+w).trim();
+    else{ if(cur)lines.push(cur); cur=w; }
+  });
+  if(cur)lines.push(cur);
+  return lines.length?lines:[''];
+}
+
+function buildSVG(data){
+  const{type,tim1,tim2,liga,momen,pemain,skor,status,headline,sub,kicker,dari,ke}=data;
+  const W=800,H=800;
+  const d=new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+  let s=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}">`;
+  s+=`<rect width="${W}" height="${H}" fill="#F5F0E6"/>`;
+  s+=`<rect x="0" y="0" width="${W}" height="12" fill="#1a1a18"/>`;
+  s+=`<rect x="0" y="${H-12}" width="${W}" height="12" fill="#1a1a18"/>`;
+  s+=`<rect x="0" y="0" width="12" height="${H}" fill="#1a1a18"/>`;
+  s+=`<rect x="${W-12}" y="0" width="12" height="${H}" fill="#1a1a18"/>`;
+  s+=`<rect x="30" y="30" width="${W-60}" height="1.5" fill="#1a1a18"/>`;
+  s+=`<rect x="30" y="${H-31.5}" width="${W-60}" height="1.5" fill="#1a1a18"/>`;
+  s+=`<rect x="30" y="30" width="1.5" height="${H-60}" fill="#1a1a18"/>`;
+  s+=`<rect x="${W-31.5}" y="30" width="1.5" height="${H-60}" fill="#1a1a18"/>`;
+  s+=`<text x="${W/2}" y="70" text-anchor="middle" font-family="Georgia,serif" font-size="18" fill="#1a1a18" font-weight="bold" letter-spacing="8">SOHIBSOCCER</text>`;
+  s+=`<rect x="30" y="80" width="${W-60}" height="1" fill="#1a1a18"/>`;
+  s+=`<rect x="30" y="83" width="${W-60}" height="3" fill="#1a1a18"/>`;
+  s+=`<rect x="30" y="86" width="${W-60}" height="28" fill="#1a1a18"/>`;
+  s+=`<text x="${W/2}" y="105" text-anchor="middle" font-family="Georgia,serif" font-size="11" fill="#F5F0E6" letter-spacing="3">${d.toUpperCase()}</text>`;
+  s+=`<rect x="30" y="114" width="${W-60}" height="1" fill="#1a1a18"/>`;
+
+  if(type==='transfer'){
+    const sc={'Deal confirmed':'#1a6b3c','Rumor':'#8a7000','Negosiasi aktif':'#0a3a7a','Dibantah / denied':'#8a1a0a','Gagal deal':'#4a4a46'}[status]||'#4a4a46';
+    s+=`<rect x="30" y="124" width="${W-60}" height="36" fill="${sc}"/>`;
+    s+=`<text x="${W/2}" y="148" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#fff" letter-spacing="5">${(kicker||'TRANSFER').toUpperCase()}</text>`;
+    const hl=wrap(headline||pemain||'TRANSFER',14);
+    let ty=240;
+    hl.forEach((line,i)=>{s+=`<text x="${W/2}" y="${ty+i*90}" text-anchor="middle" font-family="Georgia,serif" font-size="80" font-weight="bold" fill="#1a1a18">${line}</text>`;});
+    ty+=hl.length*90+10;
+    s+=`<rect x="30" y="${ty}" width="${W-60}" height="2" fill="#1a1a18"/>`;
+    ty+=36;
+    s+=`<text x="${W/2-20}" y="${ty}" text-anchor="end" font-family="Georgia,serif" font-size="22" fill="#4a4a46">${(dari||'').toUpperCase()}</text>`;
+    s+=`<text x="${W/2}" y="${ty}" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#8a8a84">&#x2192;</text>`;
+    s+=`<text x="${W/2+20}" y="${ty}" text-anchor="start" font-family="Georgia,serif" font-size="22" fill="#4a4a46">${(ke||'').toUpperCase()}</text>`;
+    ty+=30; s+=`<rect x="30" y="${ty}" width="${W-60}" height="1" fill="#ccc"/>`;
+    ty+=26; wrap(sub||'',58).forEach((line,i)=>{s+=`<text x="${W/2}" y="${ty+i*28}" text-anchor="middle" font-family="Georgia,serif" font-size="18" fill="#4a4a46" font-style="italic">${line}</text>`;});
+  } else if(type==='reaksi'){
+    s+=`<rect x="30" y="124" width="${W-60}" height="36" fill="#1a1a18"/>`;
+    s+=`<text x="${W/2}" y="148" text-anchor="middle" font-family="Georgia,serif" font-size="14" fill="#fff" letter-spacing="5">${(kicker||'FULL TIME').toUpperCase()}</text>`;
+    const t1=tim1||'TIM A',t2=tim2||'TIM B',sc=skor||'?-?';
+    s+=`<text x="100" y="245" text-anchor="middle" font-family="Georgia,serif" font-size="16" fill="#8a8a84">${t1.toUpperCase()}</text>`;
+    s+=`<text x="${W-100}" y="245" text-anchor="middle" font-family="Georgia,serif" font-size="16" fill="#8a8a84">${t2.toUpperCase()}</text>`;
+    s+=`<text x="${W/2}" y="285" text-anchor="middle" font-family="Georgia,serif" font-size="120" font-weight="bold" fill="#1a1a18">${sc}</text>`;
+    s+=`<rect x="30" y="300" width="${W-60}" height="3" fill="#1a1a18"/>`;
+    const hl=wrap(headline||'HASIL PERTANDINGAN',22);
+    let ty=364;
+    hl.forEach((line,i)=>{s+=`<text x="${W/2}" y="${ty+i*66}" text-anchor="middle" font-family="Georgia,serif" font-size="56" font-weight="bold" fill="#1a1a18">${line}</text>`;});
+    ty+=hl.length*66+16;
+    s+=`<rect x="30" y="${ty}" width="${W-60}" height="1" fill="#ccc"/>`;
+    ty+=26; wrap(sub||'',58).forEach((line,i)=>{s+=`<text x="${W/2}" y="${ty+i*28}" text-anchor="middle" font-family="Georgia,serif" font-size="18" fill="#4a4a46" font-style="italic">${line}</text>`;});
+  } else {
+    s+=`<text x="${W/2}" y="148" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="#8a8a84" letter-spacing="4">${(kicker||liga||'FOOTBALL').toUpperCase()}</text>`;
+    const t1=tim1||'TIM A',t2=tim2||'TIM B';
+    s+=`<text x="${W/2}" y="185" text-anchor="middle" font-family="Georgia,serif" font-size="22" fill="#4a4a46">${t1.toUpperCase()} vs ${t2.toUpperCase()}</text>`;
+    s+=`<rect x="30" y="196" width="${W-60}" height="3" fill="#1a1a18"/>`;
+    s+=`<rect x="30" y="203" width="${W-60}" height="1" fill="#1a1a18"/>`;
+    const hl=wrap(headline||'MATCHDAY',16);
+    let ty=296;
+    hl.forEach((line,i)=>{s+=`<text x="${W/2}" y="${ty+i*86}" text-anchor="middle" font-family="Georgia,serif" font-size="76" font-weight="bold" fill="#1a1a18">${line}</text>`;});
+    ty+=hl.length*86+10;
+    s+=`<rect x="30" y="${ty}" width="${W-60}" height="2" fill="#1a1a18"/>`;
+    ty+=28; s+=`<text x="${W/2}" y="${ty}" text-anchor="middle" font-family="Georgia,serif" font-size="13" fill="#8a8a84" letter-spacing="4">${(momen||'MATCHDAY').toUpperCase()}</text>`;
+    ty+=28; s+=`<rect x="30" y="${ty}" width="${W-60}" height="1" fill="#ccc"/>`;
+    ty+=28; wrap(sub||'',58).forEach((line,i)=>{s+=`<text x="${W/2}" y="${ty+i*28}" text-anchor="middle" font-family="Georgia,serif" font-size="18" fill="#4a4a46" font-style="italic">${line}</text>`;});
+  }
+
+  s+=`<text x="${W/2}" y="${H-22}" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="#8a8a84" letter-spacing="4">@SOHIBSOCCER_</text>`;
+  s+='</svg>';
+  return s;
+}
+
+window._svgs={};
+
+function dlSVG(type){
+  const svg=window._svgs[type]; if(!svg)return;
+  const blob=new Blob([svg],{type:'image/svg+xml'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`sohibsoccer_${type}_${Date.now()}.svg`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+}
+
+function dlPNG(type){
+  const svg=window._svgs[type]; if(!svg)return;
+  const blob=new Blob([svg],{type:'image/svg+xml;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const img=new Image();
+  img.onload=()=>{
+    const c=document.createElement('canvas'); c.width=1080; c.height=1080;
+    c.getContext('2d').drawImage(img,0,0,1080,1080);
+    c.toBlob(b=>{
+      const u=URL.createObjectURL(b);
+      const a=document.createElement('a');
+      a.href=u; a.download=`sohibsoccer_${type}_${Date.now()}.png`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
+    },'image/png');
+    URL.revokeObjectURL(url);
+  };
+  img.src=url;
+}
+
+async function callOpenRouter(apikey, model, prompt){
+  const res = await fetch('https://openrouter.ai/api/v1/chat/completions',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':`Bearer ${apikey}`,
+      'HTTP-Referer':'https://sohibsoccer.github.io',
+      'X-Title':'SohibSoccer AI Toolkit'
+    },
+    body: JSON.stringify({
+      model: model,
+      messages:[
+        {role:'system', content:'Kamu adalah social media manager akun Twitter sepak bola Indonesia @sohibsoccer_. Selalu balas HANYA dengan JSON valid, tanpa markdown backtick, tanpa penjelasan apapun sebelum atau sesudah JSON.'},
+        {role:'user', content: prompt}
+      ],
+      max_tokens: 600,
+      temperature: 0.8
+    })
+  });
+  const data = await res.json();
+  if(data.error) throw new Error(data.error.message || JSON.stringify(data.error));
+  return data.choices?.[0]?.message?.content || '{}';
+}
+
+async function gen(type){
+  const apikey = document.getElementById('apikey').value.trim();
+  if(!apikey.startsWith('sk-or-')){
+    alert('Masukin OpenRouter API key dulu bro!\nFormat: sk-or-v1-...\nGratis di: openrouter.ai/keys');
+    return;
+  }
+  const model = document.getElementById('model-select').value;
+  const k = type==='caption'?'c':type==='reaksi'?'r':'t';
+  const btn = document.getElementById('btn-'+k);
+  const ld = document.getElementById('ld-'+k);
+  const errEl = document.getElementById('err-'+k);
+  let prompt='', pdata={type};
+
+  if(type==='caption'){
+    const t1=document.getElementById('c-t1').value||'Tim A';
+    const t2=document.getElementById('c-t2').value||'Tim B';
+    const lg=document.getElementById('c-lg').value;
+    const mm=document.getElementById('c-mm').value;
+    const tn=document.getElementById('c-tn').value;
+    const dt=document.getElementById('c-dt').value;
+    pdata={...pdata,tim1:t1,tim2:t2,liga:lg,momen:mm};
+    prompt=`Buat output JSON untuk konten Twitter sepak bola:\n{"tweet":"...","headline":"...","sub":"...","kicker":"..."}\n\n- tweet: caption Twitter maks 255 karakter, 1-2 emoji, bahasa Indonesia+Inggris, no em dash (—)\n- headline: judul poster maks 4 kata ALL CAPS\n- sub: subjudul 1 kalimat maks 12 kata\n- kicker: label maks 3 kata (misal: "MATCH PREVIEW" "MATCH REPORT")\n\nKonteks: ${t1} vs ${t2}, ${lg}, ${mm}, tone: ${tn}.${dt?' Detail: '+dt:''}`;
+  } else if(type==='reaksi'){
+    const tm=document.getElementById('r-tm').value||'Tim';
+    const sk=document.getElementById('r-sk').value||'0-3';
+    const lw=document.getElementById('r-lw').value||'lawan';
+    const kj=document.getElementById('r-kj').value;
+    const tn=document.getElementById('r-tn').value;
+    pdata={...pdata,tim1:tm,tim2:lw,skor:sk};
+    prompt=`Buat output JSON reaksi pertandingan sepak bola:\n{"tweet":"...","headline":"...","sub":"...","kicker":"..."}\n\n- tweet: reaksi tone ${tn} maks 255 karakter, 1-2 emoji, bahasa Indonesia+Inggris, no em dash (—)\n- headline: judul poster maks 5 kata ALL CAPS dramatis\n- sub: analisa singkat maks 12 kata\n- kicker: label maks 3 kata\n\nKonteks: ${tm} vs ${lw}, skor ${sk}.${kj?' Kejadian: '+kj:''}`;
+  } else {
+    const pm=document.getElementById('t-pm').value||'Pemain';
+    const dr=document.getElementById('t-dr').value||'Klub A';
+    const ke=document.getElementById('t-ke').value||'Klub B';
+    const st=document.getElementById('t-st').value;
+    const src=document.getElementById('t-src').value;
+    const inf=document.getElementById('t-in').value;
+    pdata={...pdata,pemain:pm,dari:dr,ke,status:st};
+    prompt=`Buat output JSON berita transfer sepak bola:\n{"tweet":"...","headline":"...","sub":"...","kicker":"..."}\n\n- tweet: berita transfer maks 255 karakter, 1-2 emoji, bahasa Indonesia+Inggris, no em dash (—)${src?', sertakan sumber: '+src:''}\n- headline: nama pemain ALL CAPS maks 2 kata\n- sub: info transfer maks 12 kata\n- kicker: label maks 3 kata\n\nKonteks: ${pm}, dari ${dr} ke ${ke}, status: ${st}.${inf?' Info: '+inf:''}`;
+  }
+
+  btn.disabled=true; ld.classList.add('show'); errEl.innerHTML='';
+
+  try{
+    const raw = await callOpenRouter(apikey, model, prompt);
+    let parsed={};
+    try{ parsed=JSON.parse(raw.replace(/```json|```/g,'').trim()); }catch(e){}
+
+    const tweet = parsed.tweet || 'Gagal parse output, coba lagi.';
+    pdata.headline=parsed.headline||'';
+    pdata.sub=parsed.sub||'';
+    pdata.kicker=parsed.kicker||'';
+
+    const svg = buildSVG(pdata);
+    window._svgs[type] = svg;
+
+    document.getElementById('poster-'+k).outerHTML=`<div class="poster-container" id="poster-${k}">${svg}</div>`;
+    document.getElementById('dl-'+k).style.display='flex';
+    document.getElementById('tw-'+k).textContent=tweet;
+    updChar(k,tweet);
+
+  }catch(e){
+    errEl.innerHTML=`<div class="errmsg">ERROR: ${e.message}</div>`;
+  }
+  btn.disabled=false; ld.classList.remove('show');
+}
+</script>
+</body>
+</html>
